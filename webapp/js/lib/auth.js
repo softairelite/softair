@@ -329,10 +329,15 @@ export async function createUser(userData) {
       first_name: userData.first_name,
       last_name: userData.last_name,
       membership_number: userData.membership_number,
+      membership_expiry_date: userData.membership_expiry_date || null,
+      nickname: userData.nickname || null,
       phone_number: userData.phone_number || null,
+      age: userData.age || null,
+      date_of_birth: userData.date_of_birth || null,
       tax_code: userData.tax_code || null,
+      residential_address: userData.residential_address || null,
       role: userData.role || 'user',
-      is_active: true,
+      is_active: userData.is_active !== false,
       has_medical_certificate: userData.has_medical_certificate || false,
       medical_certificate_expiry: userData.medical_certificate_expiry || null
     };
