@@ -6,7 +6,6 @@ import { supabase, TABLES, toCamelCase, formatDate, formatTime, parsePostGISPoin
 import { getCurrentUser } from '../lib/auth.js';
 import { showLoading, hideLoading, showToast, openInMaps, getStaticMapUrl, createModal } from '../lib/utils.js';
 import { navigateTo, showBackButton, hideBackButton, updateEventsBadge } from '../components/navigation.js';
-import { markEventAsViewed } from '../lib/notifications.js';
 
 let currentEvent = null;
 let userAttendance = null;
@@ -109,11 +108,6 @@ export function renderEventDetailScreen(event) {
 
   // Load attendance
   loadAttendance();
-
-  // Mark event as viewed
-  markEventAsViewed(currentEvent.id).then(() => {
-    updateEventsBadge();
-  });
 }
 
 async function loadAttendance() {

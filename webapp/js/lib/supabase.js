@@ -24,8 +24,7 @@ const TABLES = {
   users: 'users',
   events: 'events',
   attendance: 'event_attendance',
-  documents: 'documents',
-  userEventViews: 'user_event_views'
+  documents: 'documents'
 };
 
 // Storage buckets
