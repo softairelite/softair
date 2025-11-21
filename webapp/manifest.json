@@ -1,12 +1,12 @@
 {
-  "name": "Softair Event",
-  "short_name": "Softair",
-  "description": "Gestione eventi e iscrizioni per il club Softair",
+  "name": "Elite Army Contractors",
+  "short_name": "EAC",
+  "description": "Gestione eventi e iscrizioni per Elite Army Contractors",
   "start_url": "/softair/",
   "scope": "/softair/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#007AFF",
+  "theme_color": "#4A5D23",
   "orientation": "portrait-primary",
   "icons": [
     {
