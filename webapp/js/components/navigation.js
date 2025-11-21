@@ -4,9 +4,11 @@
  */
 
 import { isAuthenticated, isAdmin, isSuperuser, addAuthListener } from '../lib/auth.js';
+import { getUnviewedEventsCount } from '../lib/notifications.js';
 
 let currentScreen = 'events';
 let navigationListeners = [];
+let badgeUpdateInterval = null;
 
 /**
  * Initialize navigation
@@ -33,6 +35,9 @@ export function initNavigation() {
 
   // Update visibility
   updateNavVisibility();
+
+  // Start badge update
+  startBadgeUpdate();
 }
 
 /**
@@ -206,4 +211,64 @@ export function createBreadcrumb(items) {
   });
 
   return breadcrumb;
+}
+
+/**
+ * Start badge update interval
+ */
+function startBadgeUpdate() {
+  // Clear existing interval
+  if (badgeUpdateInterval) {
+    clearInterval(badgeUpdateInterval);
+  }
+
+  // Update immediately
+  updateEventsBadge();
+
+  // Update every 30 seconds
+  badgeUpdateInterval = setInterval(updateEventsBadge, 30000);
+}
+
+/**
+ * Update events badge with unviewed count
+ */
+export async function updateEventsBadge() {
+  if (!isAuthenticated()) return;
+
+  try {
+    const count = await getUnviewedEventsCount();
+    const eventsNavItem = document.querySelector('[data-screen="events"]');
+
+    if (!eventsNavItem) return;
+
+    // Remove existing badge
+    const existingBadge = eventsNavItem.querySelector('.nav-badge');
+    if (existingBadge) {
+      existingBadge.remove();
+    }
+
+    // Add badge if count > 0
+    if (count > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'nav-badge';
+      badge.textContent = count > 9 ? '9+' : count;
+      badge.style.cssText = `
+        position: absolute;
+        top: 4px;
+        right: 12px;
+        background-color: var(--color-danger);
+        color: white;
+        border-radius: 10px;
+        padding: 2px 6px;
+        font-size: 11px;
+        font-weight: 600;
+        min-width: 18px;
+        text-align: center;
+      `;
+      eventsNavItem.style.position = 'relative';
+      eventsNavItem.appendChild(badge);
+    }
+  } catch (error) {
+    console.error('Error updating events badge:', error);
+  }
 }
