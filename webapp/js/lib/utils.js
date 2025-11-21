@@ -38,7 +38,7 @@ export function showToast(message, type = 'info') {
     bottom: '100px',
     left: '50%',
     transform: 'translateX(-50%)',
-    backgroundColor: type === 'error' ? '#FF3B30' : type === 'success' ? '#34C759' : '#007AFF',
+    backgroundColor: type === 'error' ? '#FF3B30' : type === 'success' ? '#34C759' : '#4A5D23',
     color: 'white',
     padding: '16px 24px',
     borderRadius: '12px',

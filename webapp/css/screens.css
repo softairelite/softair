@@ -12,7 +12,7 @@
   justify-content: center;
   min-height: 100vh;
   padding: var(--spacing-xl);
-  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+  background: linear-gradient(135deg, #4A5D23 0%, #3A4A1C 100%);
 }
 
 .login-container {

@@ -121,7 +121,7 @@ function renderUsersList(searchTerm = '') {
           <div style="flex: 1; min-width: 0;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
               <strong style="font-size: 16px;">${user.firstName} ${user.lastName}</strong>
-              ${user.role === 'admin' ? '<span class="user-badge" style="background: #007AFF; color: white;">Admin</span>' : ''}
+              ${user.role === 'admin' ? '<span class="user-badge" style="background: #4A5D23; color: white;">Admin</span>' : ''}
               ${user.role === 'superuser' ? '<span class="user-badge" style="background: #5856D6; color: white;">Superuser</span>' : ''}
               ${user.isActive === false ? '<span class="user-badge" style="background: #8E8E93; color: white;">Inattivo</span>' : ''}
             </div>

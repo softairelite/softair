@@ -213,8 +213,8 @@ function getFileColor(filename) {
   const ext = getFileExtension(filename);
   const colorMap = {
     pdf: '#FF3B30',
-    doc: '#007AFF',
-    docx: '#007AFF',
+    doc: '#4A5D23',
+    docx: '#4A5D23',
     xls: '#34C759',
     xlsx: '#34C759',
     jpg: '#FF9500',
