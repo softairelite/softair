@@ -18,9 +18,10 @@ export function renderLoginScreen() {
       <div class="login-container">
         <div class="login-header">
           <div class="login-logo">
-            <ion-icon name="shield-checkmark"></ion-icon>
+            <img src="assets/logo.png" alt="Elite Army Contractors" class="login-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <ion-icon name="shield-checkmark" style="display:none;"></ion-icon>
           </div>
-          <h1 class="login-title">Softair Event</h1>
+          <h1 class="login-title">Elite Army Contractors</h1>
           <p class="login-subtitle">Accedi con le tue credenziali</p>
         </div>
 
