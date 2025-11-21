@@ -360,10 +360,20 @@ async function handleUpload(modal) {
       uploaded_by: user.id
     };
 
-    const { error } = await supabase
-      .from(TABLES.documents)
-      .insert([documentData]);
+    console.log('Current user:', user);
+    console.log('Document data:', documentData);
+    console.log('Is admin?', isAdmin());
 
+    // Test is_admin() function from database
+    const { data: adminTest, error: adminTestError } = await supabase.rpc('is_admin');
+    console.log('Database is_admin() result:', adminTest, adminTestError);
+
+    const { data, error } = await supabase
+      .from(TABLES.documents)
+      .insert([documentData])
+      .select();
+
+    console.log('Insert result:', { data, error });
     if (error) throw error;
 
     hideLoading();
