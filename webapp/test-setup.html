@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Setup - Softair Event</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-card">
+        <h1>🧪 Test Setup - Softair Event Web App</h1>
+        <p>Questo file verifica che tutto sia configurato correttamente.</p>
+
+        <button onclick="runAllTests()">▶️ Esegui Tutti i Test</button>
+        <button onclick="testSupabase()">🔌 Test Supabase</button>
+        <button onclick="testPWA()">📱 Test PWA</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const resultsDiv = document.getElementById('results');
+
+        function addResult(message, type = 'success') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `
+                <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️'}</strong>
+                ${message}
+            `;
+            resultsDiv.appendChild(div);
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '<h3>Risultati Test:</h3>';
+        }
+
+        async function runAllTests() {
+            clearResults();
+            await testBrowser();
+            await testFiles();
+            await testSupabase();
+            await testPWA();
+            addResult('Test completati!', 'success');
+        }
+
+        async function testBrowser() {
+            addResult('Browser: ' + navigator.userAgent.split(' ').pop(), 'success');
+
+            if ('serviceWorker' in navigator) {
+                addResult('Service Worker supportato', 'success');
+            } else {
+                addResult('Service Worker NON supportato', 'error');
+            }
+
+            if (window.localStorage) {
+                addResult('LocalStorage disponibile', 'success');
+            } else {
+                addResult('LocalStorage NON disponibile', 'error');
+            }
+        }
+
+        async function testFiles() {
+            const files = [
+                'index.html',
+                'manifest.json',
+                'service-worker.js',
+                'css/main.css',
+                'js/app.js'
+            ];
+
+            for (const file of files) {
+                try {
+                    const response = await fetch(file, { method: 'HEAD' });
+                    if (response.ok) {
+                        addResult(`File ${file} trovato`, 'success');
+                    } else {
+                        addResult(`File ${file} NON trovato`, 'error');
+                    }
+                } catch (error) {
+                    addResult(`Errore verifica ${file}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testSupabase() {
+            try {
+                const supabaseUrl = 'https://uyubwlukwemqcwropljl.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dWJ3bHVrd2VtcWN3cm9wbGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjA0NjEsImV4cCI6MjA3OTAzNjQ2MX0.CYbKw55zi6t-IaX92pThdpaPNcL3AIYjDakmpHwWKeg';
+
+                addResult('Connessione a Supabase...', 'warning');
+
+                const { createClient } = window.supabase;
+                const supabase = createClient(supabaseUrl, supabaseKey);
+
+                // Test connessione
+                const { data: users, error: usersError } = await supabase
+                    .from('users')
+                    .select('count')
+                    .limit(1);
+
+                if (usersError) {
+                    addResult(`Errore Supabase users: ${usersError.message}`, 'error');
+                } else {
+                    addResult('✅ Supabase: Tabella users accessibile', 'success');
+                }
+
+                const { data: events, error: eventsError } = await supabase
+                    .from('events')
+                    .select('count')
+                    .limit(1);
+
+                if (eventsError) {
+                    addResult(`Errore Supabase events: ${eventsError.message}`, 'error');
+                } else {
+                    addResult('✅ Supabase: Tabella events accessibile', 'success');
+                }
+
+                const { data: docs, error: docsError } = await supabase
+                    .from('documents')
+                    .select('count')
+                    .limit(1);
+
+                if (docsError) {
+                    addResult(`Errore Supabase documents: ${docsError.message}`, 'error');
+                } else {
+                    addResult('✅ Supabase: Tabella documents accessibile', 'success');
+                }
+
+            } catch (error) {
+                addResult(`Errore test Supabase: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPWA() {
+            try {
+                // Test manifest
+                const manifestResponse = await fetch('manifest.json');
+                if (manifestResponse.ok) {
+                    const manifest = await manifestResponse.json();
+                    addResult(`Manifest trovato: ${manifest.name}`, 'success');
+                } else {
+                    addResult('Manifest NON trovato', 'error');
+                }
+
+                // Test service worker file
+                const swResponse = await fetch('service-worker.js', { method: 'HEAD' });
+                if (swResponse.ok) {
+                    addResult('Service Worker file trovato', 'success');
+                } else {
+                    addResult('Service Worker file NON trovato', 'error');
+                }
+
+                // Check if registered
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    if (registrations.length > 0) {
+                        addResult(`Service Worker registrato: ${registrations[0].scope}`, 'success');
+                    } else {
+                        addResult('Service Worker non ancora registrato (normale al primo avvio)', 'warning');
+                    }
+                }
+
+                // Check installability
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                    addResult('App installata e in modalità standalone', 'success');
+                } else {
+                    addResult('App non installata (apri index.html per installare)', 'warning');
+                }
+
+            } catch (error) {
+                addResult(`Errore test PWA: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            addResult('Pagina caricata - Clicca "Esegui Tutti i Test" per iniziare', 'warning');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+# Keep only webapp folder for GitHub Pages
+
+# iOS app (not needed for webapp)
+ios/
+app/
+
+# Scripts and documentation (local only)
+scripts/
+*.md
+!webapp/**/*.md
+
+# Config files
+.env
+.env.example
+supabase.config
+supabase.config.example
+.mcp.json
+
+# IDE/Editor
+.idea
+.vscode
+.cursor
+.claude
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Taskmaster
+.taskmaster/
+
+# Supabase local
+.supabase/
+
+# OS specific
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules/

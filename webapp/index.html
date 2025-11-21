@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Softair Event - Gestione eventi e iscrizioni per il club Softair">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Softair Event">
+
+    <title>Softair Event</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/screens.css">
+
+    <!-- Ionicons for icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+    <!-- App Container -->
+    <div id="app">
+        <!-- Loading Spinner -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="spinner"></div>
+            <p>Caricamento...</p>
+        </div>
+
+        <!-- Main Content (dynamically rendered) -->
+        <div id="main-content"></div>
+
+        <!-- Bottom Navigation (hidden on login) -->
+        <nav id="bottom-nav" class="bottom-nav" style="display: none;">
+            <button class="nav-item" data-screen="events">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>Eventi</span>
+            </button>
+            <button class="nav-item" data-screen="documents">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span>Documenti</span>
+            </button>
+            <button class="nav-item" data-screen="profile">
+                <ion-icon name="person-outline"></ion-icon>
+                <span>Profilo</span>
+            </button>
+            <button class="nav-item" data-screen="admin" id="admin-nav-btn" style="display: none;">
+                <ion-icon name="settings-outline"></ion-icon>
+                <span>Admin</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- App Scripts -->
+    <script type="module" src="js/lib/supabase.js"></script>
+    <script type="module" src="js/lib/auth.js"></script>
+    <script type="module" src="js/lib/utils.js"></script>
+    <script type="module" src="js/components/navigation.js"></script>
+    <script type="module" src="js/screens/login.js"></script>
+    <script type="module" src="js/screens/events.js"></script>
+    <script type="module" src="js/screens/event-detail.js"></script>
+    <script type="module" src="js/screens/documents.js"></script>
+    <script type="module" src="js/screens/profile.js"></script>
+    <script type="module" src="js/screens/admin.js"></script>
+    <script type="module" src="js/screens/admin-events.js"></script>
+    <script type="module" src="js/screens/admin-users.js"></script>
+    <script type="module" src="js/screens/admin-documents.js"></script>
+    <script type="module" src="js/app.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrato:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Registrazione Service Worker fallita:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

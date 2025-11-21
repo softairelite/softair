@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Tools - Softair Event</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #007AFF;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #007AFF;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            font-weight: 500;
+        }
+        button:hover:not(:disabled) {
+            opacity: 0.8;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        button.danger {
+            background: #FF3B30;
+        }
+        button.success {
+            background: #34C759;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #0c5460;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .result {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #007AFF;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .error {
+            border-left-color: #FF3B30;
+            background: #ffe6e6;
+        }
+        .success-msg {
+            border-left-color: #34C759;
+            background: #e6ffe6;
+        }
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ Admin Tools - Softair Event</h1>
+        <p>Strumenti di amministrazione per gestione database e test</p>
+
+        <div class="warning">
+            ⚠️ <strong>Attenzione:</strong> Questi strumenti modificano direttamente il database. Usare con cautela!
+        </div>
+    </div>
+
+    <!-- Popola Database -->
+    <div class="container">
+        <h2>📊 Popola Database con Dati di Test</h2>
+
+        <div class="info">
+            Questo strumento crea dati di esempio per testare l'applicazione:
+            <ul>
+                <li>10 utenti di test (admin e normali)</li>
+                <li>5 eventi (futuri e passati)</li>
+                <li>5 documenti di esempio</li>
+                <li>Registrazioni eventi casuali</li>
+            </ul>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="clearBefore">
+                Cancella dati esistenti prima di popolare (⚠️ PERICOLOSO!)
+            </label>
+        </div>
+
+        <button onclick="populateDatabase()" class="success">
+            ✨ Popola Database
+        </button>
+
+        <div id="populateResult"></div>
+    </div>
+
+    <!-- Verifica Database -->
+    <div class="container">
+        <h2>🔍 Verifica Stato Database</h2>
+
+        <button onclick="checkDatabase()">
+            📊 Verifica Database
+        </button>
+
+        <div id="checkResult"></div>
+    </div>
+
+    <!-- Crea Utente Admin -->
+    <div class="container">
+        <h2>👤 Crea Utente Amministratore</h2>
+
+        <div class="form-group">
+            <label>Nome</label>
+            <input type="text" id="adminFirstName" placeholder="Mario">
+        </div>
+
+        <div class="form-group">
+            <label>Cognome</label>
+            <input type="text" id="adminLastName" placeholder="Rossi">
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="adminEmail" placeholder="admin@softair.it">
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="adminPassword" placeholder="password123">
+        </div>
+
+        <div class="form-group">
+            <label>Numero Tessera</label>
+            <input type="text" id="adminMembership" placeholder="ADMIN001">
+        </div>
+
+        <button onclick="createAdmin()" class="success">
+            ➕ Crea Admin
+        </button>
+
+        <div id="adminResult"></div>
+    </div>
+
+    <!-- Reset Password -->
+    <div class="container">
+        <h2>🔑 Reset Password Utente</h2>
+
+        <div class="form-group">
+            <label>Email Utente</label>
+            <input type="email" id="resetEmail" placeholder="utente@example.com">
+        </div>
+
+        <div class="form-group">
+            <label>Nuova Password</label>
+            <input type="password" id="resetPassword" placeholder="nuova_password">
+        </div>
+
+        <button onclick="resetPassword()" class="danger">
+            🔄 Reset Password
+        </button>
+
+        <div id="resetResult"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase client
+        const supabaseUrl = 'https://uyubwlukwemqcwropljl.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dWJ3bHVrd2VtcWN3cm9wbGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjA0NjEsImV4cCI6MjA3OTAzNjQ2MX0.CYbKw55zi6t-IaX92pThdpaPNcL3AIYjDakmpHwWKeg';
+        const { createClient } = window.supabase;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        function showResult(elementId, message, isError = false) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="result ${isError ? 'error' : 'success-msg'}">${message}</div>`;
+        }
+
+        async function checkDatabase() {
+            try {
+                const { data: users } = await supabase.from('users').select('count');
+                const { data: events } = await supabase.from('events').select('count');
+                const { data: docs } = await supabase.from('documents').select('count');
+                const { data: attendance } = await supabase.from('event_attendance').select('count');
+
+                const result = `
+📊 Stato Database:
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Utenti:          ${users?.[0]?.count || 0}
+Eventi:          ${events?.[0]?.count || 0}
+Documenti:       ${docs?.[0]?.count || 0}
+Presenze:        ${attendance?.[0]?.count || 0}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Database operativo
+                `;
+
+                showResult('checkResult', result);
+            } catch (error) {
+                showResult('checkResult', `❌ Errore: ${error.message}`, true);
+            }
+        }
+
+        async function populateDatabase() {
+            const clearBefore = document.getElementById('clearBefore').checked;
+
+            if (clearBefore && !confirm('⚠️ ATTENZIONE! Questo cancellerà TUTTI i dati esistenti. Sei sicuro?')) {
+                return;
+            }
+
+            try {
+                showResult('populateResult', '⏳ Popolamento in corso...');
+
+                // Clear if requested
+                if (clearBefore) {
+                    await supabase.from('event_attendance').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                    await supabase.from('documents').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                    await supabase.from('events').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                    await supabase.from('users').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                }
+
+                // Create test users
+                const users = [];
+                for (let i = 1; i <= 10; i++) {
+                    const now = new Date();
+                    const expiry = new Date();
+                    expiry.setDate(expiry.getDate() + (i % 3 === 0 ? -30 : i % 3 === 1 ? 15 : 180));
+
+                    users.push({
+                        first_name: `User${i}`,
+                        last_name: `Test`,
+                        email: `user${i}@test.com`,
+                        password: 'password123',
+                        membership_number: `TEST${String(i).padStart(3, '0')}`,
+                        is_admin: i === 1,
+                        is_active: true,
+                        age: 20 + i,
+                        has_medical_certificate: true,
+                        medical_certificate_expiry: expiry.toISOString().split('T')[0],
+                        phone_number: `+39 333 ${String(i).padStart(7, '0')}`
+                    });
+                }
+
+                const { data: createdUsers } = await supabase
+                    .from('users')
+                    .insert(users)
+                    .select();
+
+                // Create test events
+                const events = [
+                    {
+                        title: 'Evento Futuro 1',
+                        event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                        location: 'Campo Softair Nord',
+                        short_description: 'Partita domenicale al campo nord',
+                        long_description: 'Grande partita di softair con scenario speciale. Portare equipaggiamento completo.',
+                        location_coordinates: 'POINT(12.4964 41.9028)',
+                        admin_notes: 'Ricordarsi di portare acqua'
+                    },
+                    {
+                        title: 'Evento Futuro 2',
+                        event_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+                        location: 'Campo Softair Sud',
+                        short_description: 'Torneo mensile',
+                        long_description: 'Torneo mensile con premi per i vincitori.',
+                        location_coordinates: 'POINT(12.5000 41.9000)'
+                    },
+                    {
+                        title: 'Evento Passato 1',
+                        event_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                        location: 'Campo Softair Centro',
+                        short_description: 'Partita dello scorso weekend',
+                        long_description: 'Evento già concluso'
+                    }
+                ];
+
+                const { data: createdEvents } = await supabase
+                    .from('events')
+                    .insert(events)
+                    .select();
+
+                // Create test documents
+                const documents = [
+                    {
+                        title: 'Regolamento Club 2024',
+                        description: 'Regolamento ufficiale del club',
+                        category: 'regolamento',
+                        file_url: 'https://example.com/regolamento.pdf',
+                        file_name: 'regolamento_2024.pdf',
+                        file_size: 524288,
+                        file_type: 'application/pdf',
+                        visibility: 'public'
+                    },
+                    {
+                        title: 'Modulo Iscrizione',
+                        description: 'Modulo per nuove iscrizioni',
+                        category: 'modulistica',
+                        file_url: 'https://example.com/modulo.pdf',
+                        file_name: 'modulo_iscrizione.pdf',
+                        file_size: 102400,
+                        file_type: 'application/pdf',
+                        visibility: 'public'
+                    },
+                    {
+                        title: 'Verbale Assemblea (Admin)',
+                        description: 'Verbale riservato agli admin',
+                        category: 'verbali',
+                        file_url: 'https://example.com/verbale.pdf',
+                        file_name: 'verbale_admin.pdf',
+                        file_size: 256000,
+                        file_type: 'application/pdf',
+                        visibility: 'admin_only'
+                    }
+                ];
+
+                await supabase.from('documents').insert(documents);
+
+                // Create test attendance
+                if (createdUsers && createdEvents) {
+                    const attendance = [];
+                    createdEvents.forEach(event => {
+                        createdUsers.slice(0, 5).forEach((user, idx) => {
+                            attendance.push({
+                                event_id: event.id,
+                                user_id: user.id,
+                                status: idx % 2 === 0 ? 'attending' : 'not_attending'
+                            });
+                        });
+                    });
+
+                    await supabase.from('event_attendance').insert(attendance);
+                }
+
+                const result = `
+✅ Database popolato con successo!
+
+Creati:
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+👥 ${users.length} utenti di test
+📅 ${events.length} eventi
+📄 ${documents.length} documenti
+📊 Registrazioni eventi
+
+Credenziali Admin:
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Email:    user1@test.com
+Password: password123
+
+Credenziali Utente:
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Email:    user2@test.com
+Password: password123
+                `;
+
+                showResult('populateResult', result);
+            } catch (error) {
+                showResult('populateResult', `❌ Errore: ${error.message}`, true);
+            }
+        }
+
+        async function createAdmin() {
+            const firstName = document.getElementById('adminFirstName').value;
+            const lastName = document.getElementById('adminLastName').value;
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const membership = document.getElementById('adminMembership').value;
+
+            if (!firstName || !lastName || !email || !password || !membership) {
+                showResult('adminResult', '❌ Compila tutti i campi', true);
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([{
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: email.toLowerCase(),
+                        password: password,
+                        membership_number: membership,
+                        is_admin: true,
+                        is_active: true,
+                        has_medical_certificate: false
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                const result = `
+✅ Amministratore creato con successo!
+
+Dettagli:
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Nome:     ${firstName} ${lastName}
+Email:    ${email}
+Password: ${password}
+Tessera:  ${membership}
+Ruolo:    Amministratore
+                `;
+
+                showResult('adminResult', result);
+
+                // Clear form
+                document.getElementById('adminFirstName').value = '';
+                document.getElementById('adminLastName').value = '';
+                document.getElementById('adminEmail').value = '';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminMembership').value = '';
+            } catch (error) {
+                showResult('adminResult', `❌ Errore: ${error.message}`, true);
+            }
+        }
+
+        async function resetPassword() {
+            const email = document.getElementById('resetEmail').value;
+            const newPassword = document.getElementById('resetPassword').value;
+
+            if (!email || !newPassword) {
+                showResult('resetResult', '❌ Compila tutti i campi', true);
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .update({ password: newPassword })
+                    .eq('email', email.toLowerCase())
+                    .select();
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    showResult('resetResult', `❌ Utente con email ${email} non trovato`, true);
+                    return;
+                }
+
+                const result = `
+✅ Password aggiornata con successo!
+
+Dettagli:
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+Utente:       ${data[0].first_name} ${data[0].last_name}
+Email:        ${email}
+Nuova Password: ${newPassword}
+                `;
+
+                showResult('resetResult', result);
+
+                // Clear form
+                document.getElementById('resetEmail').value = '';
+                document.getElementById('resetPassword').value = '';
+            } catch (error) {
+                showResult('resetResult', `❌ Errore: ${error.message}`, true);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Dependency directories
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Service Worker cache (in development)
+*-cache/
