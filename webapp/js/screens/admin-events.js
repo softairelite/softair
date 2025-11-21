@@ -253,12 +253,17 @@ async function handleSaveEvent(modal) {
     } else {
       // Create new event
       const user = getCurrentUser();
+      console.log('Current user object:', user);
+      console.log('Auth ID to use:', user.authId);
       eventData.created_by = user.authId;
 
-      const { error } = await supabase
+      console.log('Event data being inserted:', eventData);
+      const { data, error } = await supabase
         .from(TABLES.events)
-        .insert([eventData]);
+        .insert([eventData])
+        .select();
 
+      console.log('Insert response:', { data, error });
       if (error) throw error;
       showToast('Evento creato', 'success');
     }
