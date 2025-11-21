@@ -243,31 +243,22 @@ async function handleSaveEvent(modal) {
 
     if (isEditMode) {
       // Update existing event
-      console.log('Updating event:', currentEvent.id);
-      console.log('Event data for update:', eventData);
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from(TABLES.events)
         .update(eventData)
-        .eq('id', currentEvent.id)
-        .select();
+        .eq('id', currentEvent.id);
 
-      console.log('Update response:', { data, error });
       if (error) throw error;
       showToast('Evento aggiornato', 'success');
     } else {
       // Create new event
       const user = getCurrentUser();
-      console.log('Current user object:', user);
-      console.log('Auth ID to use:', user.authId);
       eventData.created_by = user.authId;
 
-      console.log('Event data being inserted:', eventData);
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from(TABLES.events)
-        .insert([eventData])
-        .select();
+        .insert([eventData]);
 
-      console.log('Insert response:', { data, error });
       if (error) throw error;
       showToast('Evento creato', 'success');
     }
