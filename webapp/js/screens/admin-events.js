@@ -253,7 +253,7 @@ async function handleSaveEvent(modal) {
     } else {
       // Create new event
       const user = getCurrentUser();
-      eventData.created_by = user.id;
+      eventData.created_by = user.authId;
 
       const { error } = await supabase
         .from(TABLES.events)
