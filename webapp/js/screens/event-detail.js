@@ -296,6 +296,8 @@ async function setAttendance(status) {
     hideLoading();
     showToast('Presenza aggiornata', 'success');
     await loadAttendance();
+    // Update badge in case event is no longer considered new
+    updateEventsBadge();
   } catch (error) {
     hideLoading();
     console.error('Error updating attendance:', error);

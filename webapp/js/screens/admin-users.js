@@ -383,7 +383,7 @@ async function handleSaveUser(modal) {
       // Create new user with Supabase Auth
       userData.password = password;
       await createUser(userData);
-      showToast('Utente creato. Riceverà un\'email di conferma.', 'success');
+      showToast('Utente creato', 'success');
     }
 
     hideLoading();

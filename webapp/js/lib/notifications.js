@@ -28,7 +28,7 @@ export async function getUnviewedEventsCount() {
     const { data: viewedEvents } = await supabase
       .from(TABLES.userEventViews)
       .select('event_id')
-      .eq('user_id', user.id)
+      .eq('user_id', user.authId)
       .in('event_id', eventIds);
 
     const viewedIds = viewedEvents ? viewedEvents.map(v => v.event_id) : [];
@@ -52,7 +52,7 @@ export async function markEventAsViewed(eventId) {
     await supabase
       .from(TABLES.userEventViews)
       .upsert({
-        user_id: user.id,
+        user_id: user.authId,
         event_id: eventId,
         viewed_at: new Date().toISOString()
       }, {
@@ -86,7 +86,7 @@ export async function getUnviewedEvents() {
     const { data: viewedEvents } = await supabase
       .from(TABLES.userEventViews)
       .select('event_id')
-      .eq('user_id', user.id)
+      .eq('user_id', user.authId)
       .in('event_id', eventIds);
 
     const viewedIds = viewedEvents ? viewedEvents.map(v => v.event_id) : [];
