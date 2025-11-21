@@ -6,6 +6,7 @@ import { supabase, TABLES, toCamelCase, formatDate, formatTime, parsePostGISPoin
 import { getCurrentUser } from '../lib/auth.js';
 import { showLoading, hideLoading, showToast, openInMaps, getStaticMapUrl, createModal } from '../lib/utils.js';
 import { navigateTo, showBackButton, hideBackButton, updateEventsBadge } from '../components/navigation.js';
+import { refreshEventsList } from './events.js';
 
 let currentEvent = null;
 let userAttendance = null;
@@ -290,8 +291,9 @@ async function setAttendance(status) {
     hideLoading();
     showToast('Presenza aggiornata', 'success');
     await loadAttendance();
-    // Update badge in case event is no longer considered new
+    // Update badge and refresh events list to remove warning
     updateEventsBadge();
+    refreshEventsList();
   } catch (error) {
     hideLoading();
     console.error('Error updating attendance:', error);

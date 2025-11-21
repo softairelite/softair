@@ -55,8 +55,13 @@ export function renderEventsScreen() {
   loadEvents();
 }
 
+export async function refreshEventsList() {
+  await loadEvents();
+}
+
 async function loadEvents() {
   try {
+    const user = getCurrentUser();
     const { data, error } = await supabase
       .from(TABLES.events)
       .select('*')
@@ -66,16 +71,20 @@ async function loadEvents() {
 
     events = toCamelCase(data);
 
-    // Load attendance stats for each event
+    // Load attendance stats and user's response for each event
     for (const event of events) {
       const { data: attendance } = await supabase
         .from(TABLES.attendance)
-        .select('status')
+        .select('status, user_id')
         .eq('event_id', event.id);
 
       const attendanceData = attendance || [];
       event.attendingCount = attendanceData.filter(a => a.status === 'attending').length;
       event.notAttendingCount = attendanceData.filter(a => a.status === 'not_attending').length;
+
+      // Check if current user has responded
+      const userResponse = attendanceData.find(a => a.user_id === user.id);
+      event.userHasResponded = userResponse && (userResponse.status === 'attending' || userResponse.status === 'not_attending');
     }
 
     renderEventsList();
@@ -109,12 +118,19 @@ function renderEventsList() {
 
   listContainer.innerHTML = filteredEvents.map(event => {
     const isPast = isEventPast(event.eventDate);
+    const needsResponse = !isPast && !event.userHasResponded;
     return `
       <div class="event-card ${isPast ? 'past-event' : ''}" data-event-id="${event.id}">
         <div class="event-card-header">
           <h3 class="event-card-title">${event.shortDescription || 'Evento'}</h3>
           ${isPast ? '<span class="event-badge past">Passato</span>' : ''}
         </div>
+        ${needsResponse ? `
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+            <ion-icon name="alert-circle" style="color: var(--color-danger); font-size: 18px;"></ion-icon>
+            <span style="color: var(--color-danger); font-size: 13px; font-weight: 600;">Non hai dato la tua disponibilità!</span>
+          </div>
+        ` : ''}
         <div class="event-card-info">
           <div class="event-info-row">
             <ion-icon name="calendar"></ion-icon>
