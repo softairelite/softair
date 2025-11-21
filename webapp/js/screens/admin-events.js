@@ -243,11 +243,15 @@ async function handleSaveEvent(modal) {
 
     if (isEditMode) {
       // Update existing event
-      const { error } = await supabase
+      console.log('Updating event:', currentEvent.id);
+      console.log('Event data for update:', eventData);
+      const { data, error } = await supabase
         .from(TABLES.events)
         .update(eventData)
-        .eq('id', currentEvent.id);
+        .eq('id', currentEvent.id)
+        .select();
 
+      console.log('Update response:', { data, error });
       if (error) throw error;
       showToast('Evento aggiornato', 'success');
     } else {
