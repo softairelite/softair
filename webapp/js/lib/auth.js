@@ -488,6 +488,10 @@ export async function loginWithBiometric() {
       const errorData = await response.json();
       console.error('Edge Function error:', errorData);
       console.error('Response status:', response.status);
+      console.error('Full error object:', JSON.stringify(errorData, null, 2));
+      if (errorData.debug) {
+        console.error('Debug info:', JSON.stringify(errorData.debug, null, 2));
+      }
       throw new Error(errorData.error || 'Errore durante l\'autenticazione biometrica');
     }
 
