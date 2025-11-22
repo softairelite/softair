@@ -102,17 +102,16 @@ serve(async (req) => {
     // This creates a new session without requiring password
     const { data: tokenData, error: tokenError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
-      email: userData.email,
-      options: {
-        redirectTo: ''  // We don't need redirect, just the token
-      }
+      email: userData.email
     })
 
     if (tokenError || !tokenData) {
       console.error('Failed to generate token:', tokenError)
+      console.error('Token data:', JSON.stringify(tokenData))
       return new Response(
         JSON.stringify({
-          error: 'Failed to create session'
+          error: 'Failed to create session',
+          details: tokenError?.message
         }),
         {
           status: 500,
@@ -121,15 +120,29 @@ serve(async (req) => {
       )
     }
 
-    // Extract the access token and refresh token from the properties
-    const accessToken = tokenData.properties?.access_token
-    const refreshToken = tokenData.properties?.refresh_token
+    // Log the token data structure to help debug
+    console.log('Token data structure:', JSON.stringify(tokenData))
+
+    // Extract the access token and refresh token
+    // Try multiple possible locations where tokens might be
+    const accessToken = tokenData.properties?.access_token ||
+                       tokenData.access_token ||
+                       tokenData.session?.access_token
+    const refreshToken = tokenData.properties?.refresh_token ||
+                        tokenData.refresh_token ||
+                        tokenData.session?.refresh_token
 
     if (!accessToken || !refreshToken) {
       console.error('Tokens not found in response')
+      console.error('Available data:', JSON.stringify(tokenData))
       return new Response(
         JSON.stringify({
-          error: 'Failed to extract tokens'
+          error: 'Failed to extract tokens',
+          debug: {
+            hasProperties: !!tokenData.properties,
+            hasAccessToken: !!tokenData.access_token,
+            hasSession: !!tokenData.session
+          }
         }),
         {
           status: 500,
