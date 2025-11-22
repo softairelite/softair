@@ -1,25 +1,25 @@
 // Service Worker per PWA - Softair Event App
 const CACHE_NAME = 'softair-event-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/css/main.css',
-  '/css/components.css',
-  '/css/screens.css',
-  '/js/app.js',
-  '/js/lib/supabase.js',
-  '/js/lib/auth.js',
-  '/js/lib/utils.js',
-  '/js/components/navigation.js',
-  '/js/screens/login.js',
-  '/js/screens/events.js',
-  '/js/screens/event-detail.js',
-  '/js/screens/documents.js',
-  '/js/screens/profile.js',
-  '/js/screens/admin.js',
-  '/manifest.json',
-  '/assets/icons/icon-192.png',
-  '/assets/icons/icon-512.png'
+  './',
+  './index.html',
+  './css/main.css',
+  './css/components.css',
+  './css/screens.css',
+  './js/app.js',
+  './js/lib/supabase.js',
+  './js/lib/auth.js',
+  './js/lib/utils.js',
+  './js/components/navigation.js',
+  './js/screens/login.js',
+  './js/screens/events.js',
+  './js/screens/event-detail.js',
+  './js/screens/documents.js',
+  './js/screens/profile.js',
+  './js/screens/admin.js',
+  './manifest.json',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png'
 ];
 
 // Install event - cache resources
@@ -82,7 +82,7 @@ self.addEventListener('fetch', (event) => {
       .catch(() => {
         // If both cache and network fail, show offline page
         if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
+          return caches.match('./index.html');
         }
       })
   );
@@ -103,8 +103,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Softair Event';
   const options = {
     body: data.body || 'Nuova notifica',
-    icon: '/assets/icons/icon-192.png',
-    badge: '/assets/icons/icon-72.png',
+    icon: './assets/icons/icon-192.png',
+    badge: './assets/icons/icon-72.png',
     vibrate: [200, 100, 200],
     data: data
   };
@@ -120,7 +120,7 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   event.waitUntil(
-    clients.openWindow('/')
+    clients.openWindow('./')
   );
 });
 
