@@ -98,19 +98,19 @@ serve(async (req) => {
       )
     }
 
-    // Generate a magic link for the user
-    // The properties will contain access and refresh tokens
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+    // Generate an OTP for the user
+    // The client will use this OTP to authenticate
+    const { data: otpData, error: otpError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: userData.email,
     })
 
-    if (linkError || !linkData) {
-      console.error('Failed to generate link:', linkError)
+    if (otpError || !otpData) {
+      console.error('Failed to generate OTP:', otpError)
       return new Response(
         JSON.stringify({
           error: 'Failed to create session',
-          details: linkError?.message
+          details: otpError?.message
         }),
         {
           status: 500,
@@ -119,19 +119,15 @@ serve(async (req) => {
       )
     }
 
-    console.log('Link data keys:', Object.keys(linkData))
-    console.log('Properties keys:', linkData.properties ? Object.keys(linkData.properties) : 'no properties')
+    // Extract the OTP token from properties
+    const emailOtp = otpData.properties?.email_otp
+    const hashedToken = otpData.properties?.hashed_token
 
-    // Extract session tokens from the magic link properties
-    const accessToken = linkData.properties?.access_token
-    const refreshToken = linkData.properties?.refresh_token
-
-    if (!accessToken || !refreshToken) {
-      console.error('Tokens not found. Link data:', JSON.stringify(linkData))
+    if (!emailOtp && !hashedToken) {
+      console.error('No OTP or token found')
       return new Response(
         JSON.stringify({
-          error: 'Failed to extract session tokens',
-          debug: linkData
+          error: 'Failed to generate authentication token'
         }),
         {
           status: 500,
@@ -146,11 +142,12 @@ serve(async (req) => {
       .update({ last_used_at: new Date().toISOString() })
       .eq('credential_id', credentialId)
 
-    // Return session data
+    // Return OTP data for client to authenticate
     return new Response(
       JSON.stringify({
-        access_token: accessToken,
-        refresh_token: refreshToken,
+        email: userData.email,
+        email_otp: emailOtp,
+        token: hashedToken,
         user: {
           id: userData.auth_id,
           email: userData.email

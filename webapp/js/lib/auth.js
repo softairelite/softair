@@ -495,23 +495,25 @@ export async function loginWithBiometric() {
       throw new Error(errorData.error || 'Errore durante l\'autenticazione biometrica');
     }
 
-    const { access_token, refresh_token } = await response.json();
+    const { email, email_otp } = await response.json();
 
-    // Set the session in Supabase client
-    const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
-      access_token,
-      refresh_token
+    // Use the OTP to authenticate
+    const { data: authData, error: authError } = await supabase.auth.verifyOtp({
+      email: email,
+      token: email_otp,
+      type: 'email'
     });
 
-    if (sessionError) {
-      throw new Error('Errore durante la creazione della sessione');
+    if (authError) {
+      console.error('OTP verification error:', authError);
+      throw new Error('Errore durante la verifica OTP');
     }
 
-    // Get user profile from users table
+    // Get user profile from users table using the auth_id
     const { data: userData, error: userError } = await supabase
       .from(TABLES.users)
       .select('*')
-      .eq('id', userId)
+      .eq('auth_id', authData.user.id)
       .eq('is_active', true)
       .single();
 
