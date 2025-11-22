@@ -469,11 +469,14 @@ export async function loginWithBiometric() {
     // Get it from: https://YOUR_PROJECT_ID.supabase.co/functions/v1/biometric-auth
     const EDGE_FUNCTION_URL = 'https://uyubwlukwemqcwropljl.supabase.co/functions/v1/biometric-auth';
 
+    const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dWJ3bHVrd2VtcWN3cm9wbGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjA0NjEsImV4cCI6MjA3OTAzNjQ2MX0.CYbKw55zi6t-IaX92pThdpaPNcL3AIYjDakmpHwWKeg';
+
     const response = await fetch(EDGE_FUNCTION_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dWJ3bHVrd2VtcWN3cm9wbGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjA0NjEsImV4cCI6MjA3OTAzNjQ2MX0.CYbKw55zi6t-IaX92pThdpaPNcL3AIYjDakmpHwWKeg'
+        'apikey': ANON_KEY,
+        'Authorization': `Bearer ${ANON_KEY}`
       },
       body: JSON.stringify({
         userId: userId,
