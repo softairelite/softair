@@ -3,15 +3,20 @@
  * Schermata di autenticazione
  */
 
-import { login, sendPasswordReset } from '../lib/auth.js';
+import { login, sendPasswordReset, loginWithBiometric } from '../lib/auth.js';
 import { showLoading, hideLoading, showToast, isValidEmail } from '../lib/utils.js';
 import { navigateTo } from '../components/navigation.js';
+import { isPlatformAuthenticatorAvailable, getBiometricName, hasRegisteredCredentials, registerCredential } from '../lib/webauthn.js';
 
 /**
  * Render login screen
  */
-export function renderLoginScreen() {
+export async function renderLoginScreen() {
   const container = document.getElementById('main-content');
+
+  // Check if biometric authentication is available
+  const isBiometricAvailable = await isPlatformAuthenticatorAvailable();
+  const biometricName = getBiometricName();
 
   container.innerHTML = `
     <div class="login-screen">
@@ -24,6 +29,17 @@ export function renderLoginScreen() {
           <h1 class="login-title">Elite Army Contractors</h1>
           <p class="login-subtitle">Accedi con le tue credenziali</p>
         </div>
+
+        ${isBiometricAvailable ? `
+          <button type="button" id="biometric-login-btn" class="btn-biometric">
+            <ion-icon name="finger-print"></ion-icon>
+            Accedi con ${biometricName}
+          </button>
+
+          <div class="login-divider">
+            <span>oppure</span>
+          </div>
+        ` : ''}
 
         <form id="login-form" class="login-form">
           <div class="form-group">
@@ -70,6 +86,14 @@ export function renderLoginScreen() {
 
   // Setup forgot password link
   document.getElementById('forgot-password-link')?.addEventListener('click', handleForgotPassword);
+
+  // Setup biometric login button
+  if (isBiometricAvailable) {
+    const biometricBtn = document.getElementById('biometric-login-btn');
+    if (biometricBtn) {
+      biometricBtn.addEventListener('click', handleBiometricLogin);
+    }
+  }
 }
 
 /**
@@ -100,6 +124,18 @@ async function handleLogin(e) {
     hideLoading();
     showToast(`Benvenuto ${user.firstName}!`, 'success');
 
+    // Check if user wants to enable biometric authentication
+    const isBiometricAvailable = await isPlatformAuthenticatorAvailable();
+    if (isBiometricAvailable) {
+      const hasCredentials = await hasRegisteredCredentials(user.id);
+      if (!hasCredentials) {
+        // Ask if user wants to enable biometric login
+        setTimeout(() => {
+          offerBiometricRegistration(user);
+        }, 1000);
+      }
+    }
+
     // Navigate to events screen
     setTimeout(() => {
       navigateTo('events');
@@ -109,6 +145,59 @@ async function handleLogin(e) {
     hideLoading();
     console.error('Login error:', error);
     showToast(error.message || 'Errore durante il login', 'error');
+  }
+}
+
+/**
+ * Handle biometric login
+ */
+async function handleBiometricLogin(e) {
+  e.preventDefault();
+
+  try {
+    showLoading();
+
+    const user = await loginWithBiometric();
+
+    hideLoading();
+    showToast(`Benvenuto ${user.firstName}!`, 'success');
+
+    // Navigate to events screen
+    setTimeout(() => {
+      navigateTo('events');
+    }, 500);
+
+  } catch (error) {
+    hideLoading();
+    console.error('Biometric login error:', error);
+    showToast(error.message || 'Errore durante l\'autenticazione biometrica', 'error');
+  }
+}
+
+/**
+ * Offer to register biometric authentication
+ */
+async function offerBiometricRegistration(user) {
+  const biometricName = getBiometricName();
+
+  // Show custom confirmation dialog
+  const message = `Vuoi abilitare ${biometricName} per accedere più velocemente la prossima volta?`;
+
+  if (confirm(message)) {
+    try {
+      showLoading();
+      await registerCredential(user);
+      hideLoading();
+      showToast(`${biometricName} abilitato con successo!`, 'success');
+    } catch (error) {
+      hideLoading();
+      console.error('Error registering biometric:', error);
+
+      // Don't show error if user cancelled
+      if (!error.message.includes('annullata')) {
+        showToast(error.message || 'Errore durante la registrazione', 'error');
+      }
+    }
   }
 }
 

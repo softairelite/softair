@@ -4,6 +4,7 @@
  */
 
 import { supabase, TABLES, toCamelCase } from './supabase.js';
+import { authenticateWithCredential } from './webauthn.js';
 
 // Current user state
 let currentUser = null;
@@ -450,6 +451,112 @@ export async function updatePassword(newPassword) {
     return true;
   } catch (error) {
     console.error('Error updating password:', error);
+    throw error;
+  }
+}
+
+/**
+ * Login with biometric authentication (Face ID, Touch ID)
+ * Uses Supabase Edge Function to create authenticated session
+ */
+export async function loginWithBiometric() {
+  try {
+    // Authenticate with WebAuthn credential
+    const { userId, credentialId } = await authenticateWithCredential();
+
+    // Call Edge Function to create session
+    // TODO: Replace with your actual Edge Function URL after deployment
+    // Get it from: https://YOUR_PROJECT_ID.supabase.co/functions/v1/biometric-auth
+    const EDGE_FUNCTION_URL = 'https://uyubwlukwemqcwropljl.supabase.co/functions/v1/biometric-auth';
+
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dWJ3bHVrd2VtcWN3cm9wbGpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NjA0NjEsImV4cCI6MjA3OTAzNjQ2MX0.CYbKw55zi6t-IaX92pThdpaPNcL3AIYjDakmpHwWKeg'
+      },
+      body: JSON.stringify({
+        userId: userId,
+        credentialId: credentialId
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Errore durante l\'autenticazione biometrica');
+    }
+
+    const { access_token, refresh_token } = await response.json();
+
+    // Set the session in Supabase client
+    const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+      access_token,
+      refresh_token
+    });
+
+    if (sessionError) {
+      throw new Error('Errore durante la creazione della sessione');
+    }
+
+    // Get user profile from users table
+    const { data: userData, error: userError } = await supabase
+      .from(TABLES.users)
+      .select('*')
+      .eq('id', userId)
+      .eq('is_active', true)
+      .single();
+
+    if (userError || !userData) {
+      throw new Error('Account non trovato o disattivato');
+    }
+
+    currentUser = toCamelCase(userData);
+    notifyAuthListeners();
+    return currentUser;
+  } catch (error) {
+    console.error('Biometric login error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Alternative biometric login that uses a one-time token approach
+ * This requires users to have logged in at least once with email/password
+ */
+export async function loginWithBiometricSimple() {
+  try {
+    // Authenticate with WebAuthn credential
+    const { userId } = await authenticateWithCredential();
+
+    // Get user data (including auth_id)
+    const { data: userData, error: userError } = await supabase
+      .from(TABLES.users)
+      .select('*')
+      .eq('id', userId)
+      .eq('is_active', true)
+      .single();
+
+    if (userError || !userData) {
+      throw new Error('Account non trovato o disattivato');
+    }
+
+    // Check if there's an existing session for this user
+    // This works if the user has logged in before and the session is still valid
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session && session.user.id === userData.auth_id) {
+      // Session already exists for this user
+      currentUser = toCamelCase(userData);
+      notifyAuthListeners();
+      return currentUser;
+    }
+
+    // No existing session - need to create one
+    // For now, we'll throw an error suggesting the user logs in with password first
+    throw new Error('Prima accesso richiesto con email/password. Poi potrai usare Face ID.');
+
+  } catch (error) {
+    console.error('Biometric login error:', error);
     throw error;
   }
 }
