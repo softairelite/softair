@@ -98,20 +98,18 @@ serve(async (req) => {
       )
     }
 
-    // Generate auth token for the user using admin API
-    // This creates a new session without requiring password
-    const { data: tokenData, error: tokenError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: userData.email
+    // Create a session for the user using admin API
+    // This uses the auth_id from the users table
+    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
+      user_id: userData.auth_id
     })
 
-    if (tokenError || !tokenData) {
-      console.error('Failed to generate token:', tokenError)
-      console.error('Token data:', JSON.stringify(tokenData))
+    if (sessionError || !sessionData) {
+      console.error('Failed to create session:', sessionError)
       return new Response(
         JSON.stringify({
           error: 'Failed to create session',
-          details: tokenError?.message
+          details: sessionError?.message
         }),
         {
           status: 500,
@@ -120,29 +118,15 @@ serve(async (req) => {
       )
     }
 
-    // Log the token data structure to help debug
-    console.log('Token data structure:', JSON.stringify(tokenData))
-
-    // Extract the access token and refresh token
-    // Try multiple possible locations where tokens might be
-    const accessToken = tokenData.properties?.access_token ||
-                       tokenData.access_token ||
-                       tokenData.session?.access_token
-    const refreshToken = tokenData.properties?.refresh_token ||
-                        tokenData.refresh_token ||
-                        tokenData.session?.refresh_token
+    // Extract session tokens
+    const accessToken = sessionData.session?.access_token
+    const refreshToken = sessionData.session?.refresh_token
 
     if (!accessToken || !refreshToken) {
-      console.error('Tokens not found in response')
-      console.error('Available data:', JSON.stringify(tokenData))
+      console.error('Tokens not found in session data')
       return new Response(
         JSON.stringify({
-          error: 'Failed to extract tokens',
-          debug: {
-            hasProperties: !!tokenData.properties,
-            hasAccessToken: !!tokenData.access_token,
-            hasSession: !!tokenData.session
-          }
+          error: 'Failed to extract session tokens'
         }),
         {
           status: 500,
