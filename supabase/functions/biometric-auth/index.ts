@@ -98,18 +98,19 @@ serve(async (req) => {
       )
     }
 
-    // Create a session for the user using admin API
-    // This uses the auth_id from the users table
-    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
-      user_id: userData.auth_id
+    // Generate a magic link for the user
+    // The properties will contain access and refresh tokens
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'magiclink',
+      email: userData.email,
     })
 
-    if (sessionError || !sessionData) {
-      console.error('Failed to create session:', sessionError)
+    if (linkError || !linkData) {
+      console.error('Failed to generate link:', linkError)
       return new Response(
         JSON.stringify({
           error: 'Failed to create session',
-          details: sessionError?.message
+          details: linkError?.message
         }),
         {
           status: 500,
@@ -118,15 +119,19 @@ serve(async (req) => {
       )
     }
 
-    // Extract session tokens
-    const accessToken = sessionData.session?.access_token
-    const refreshToken = sessionData.session?.refresh_token
+    console.log('Link data keys:', Object.keys(linkData))
+    console.log('Properties keys:', linkData.properties ? Object.keys(linkData.properties) : 'no properties')
+
+    // Extract session tokens from the magic link properties
+    const accessToken = linkData.properties?.access_token
+    const refreshToken = linkData.properties?.refresh_token
 
     if (!accessToken || !refreshToken) {
-      console.error('Tokens not found in session data')
+      console.error('Tokens not found. Link data:', JSON.stringify(linkData))
       return new Response(
         JSON.stringify({
-          error: 'Failed to extract session tokens'
+          error: 'Failed to extract session tokens',
+          debug: linkData
         }),
         {
           status: 500,
