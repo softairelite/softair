@@ -259,7 +259,9 @@ export async function getUserCredentials(userId) {
  */
 export async function hasRegisteredCredentials(userId) {
   try {
+    console.log('Checking credentials for user:', userId);
     const credentials = await getUserCredentials(userId);
+    console.log('Found credentials:', credentials);
     return credentials.length > 0;
   } catch (error) {
     console.error('Error checking credentials:', error);

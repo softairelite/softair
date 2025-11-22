@@ -126,8 +126,10 @@ async function handleLogin(e) {
 
     // Check if user wants to enable biometric authentication
     const isBiometricAvailable = await isPlatformAuthenticatorAvailable();
+    console.log('Biometric available:', isBiometricAvailable);
     if (isBiometricAvailable) {
       const hasCredentials = await hasRegisteredCredentials(user.id);
+      console.log('User has credentials:', hasCredentials, 'User ID:', user.id);
       if (!hasCredentials) {
         // Ask if user wants to enable biometric login
         setTimeout(() => {
