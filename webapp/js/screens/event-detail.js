@@ -210,7 +210,7 @@ function showUserList(title, users) {
     <div class="user-item">
       <div class="user-avatar">${getUserInitials(u.firstName, u.lastName)}</div>
       <div class="user-info">
-        <p class="user-name">${u.firstName} ${u.lastName}</p>
+        <p class="user-name">${u.firstName} ${u.lastName}${u.nickname ? ` - ${u.nickname}` : ''}</p>
         <p class="user-email">${u.email}</p>
       </div>
     </div>
